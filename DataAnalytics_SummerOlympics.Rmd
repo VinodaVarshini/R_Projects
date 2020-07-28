@@ -1,0 +1,664 @@
+---
+title: "Summer Olympics casestudy"
+output: 
+  html_notebook: 
+    toc: yes
+    toc_depth: 5
+---
+
+# 1. Description of the dataset
+
+## 1.1 Background Information
+
+The Summer Olympic Games or the Games of the Olympiad, first held in 1896, is a major international multi-sport event normally held once every four years. The International Olympic Committee (IOC) organises the Games and oversees the host city's preparations.In each Olympic event, gold medals are awarded for first place, silver medals are awarded for second place, and bronze medals are awarded for third place; this tradition began in 1904.The 1896 Summer Olympics, officially known as the Games of the Olympiad, was an international multi-sport event which was celebrated in Athens, Greece, from 6 to 15 April 1896. It was the first Olympic Games held in the Modern era. 
+
+## 1.2 Dataset contains
+
+Summer olympics dataset contains information of the olympics held from 1896 to 2012. This dataset contains fields such as
+        Year   -   Year of the Olympics held
+        City   -   Place of the Olympics held at that year
+        Sport  -   Category of the sport played
+        Discipline  -  Game name of the sport
+        Athlete  -  Name of the athlete won in the event
+        Country  -  Name of the country the athlete belongs to
+        Gender  -  Gender of the athlete
+        Event  -  Event name of the Sport
+        Medal  -  Name of the medal won by the athlete
+        
+## 1.3 Current Scenario  
+
+This case study is actually to understand the performance of the countries with respect to events in which they have won medals in the summer olympics. The past information of the countries that won the medals help us to understand the strategies they practice in the sport. 
+
+## 1.4 Plan of Action
+
+Using this, we will carry out research and develop a statistical model which, given this information, predicts whether in the next olympics the country will win medal in the particular event or not. A successful model which is able to do this, will make the best prediction in the world of sports. 
+
+## 1.5 End Result 
+
+Once our plan is successful in analysing the winning of medals, we can prepare our athletes for winning more number of medals for our country.Hence, there is high chance for our country to defeat opponent athlete and can win gold medals.
+
+___
+
+# 2. Study Questions
+
+* **What are the factors that are making the country successful in the olympics?** 
+
+* **What are the strategies that we are going to opt for countries to perform better in       olympics?**
+
+* **Which gender is performing better in olympics?**
+
+___
+
+# 3. Process to be followed 
+
+1. We are going to collect some **olympic data**. 
+
+2. Then we will carryout the **research** on the data we have.
+
+3. Once it's all blended together, we will take that data and then try and come up with a **analysis**.
+
+4. Finally, we will come up with a **strategy**. 
+
+___
+
+# 4. Loading Packages and Libraries
+
+Alright! lets begin our olympics analytics by installing some packages and loading all the libraries.
+
+Library **tidyverse** loads a bunch of packages like **ggplot2** which is used for visualization and **dplyr** is used for manipulation and several other packages.
+
+```{r}
+install.packages("tidyverse")
+```
+
+```{r}
+library(tidyverse)
+```
+
+___
+
+**recipes** package is kind of an advanced package but, its really useful for preparing data and adding various manipulations to it.
+
+```{r}
+install.packages("recipes")
+```
+
+```{r}
+library(recipes)
+```
+___
+
+The **tidyquant** package is primarily going to used for some plotting. It has got some nice themes in there.
+
+```{r}
+install.packages("tidyquant")
+```
+
+```{r}
+library(tidyquant)
+```
+
+___
+
+**ggrepel** is also a nice package for adding lines to show where different labels kind of connect up with the data points.
+
+```{r}
+install.packages("ggrepel")
+```
+
+```{r}
+library(ggrepel)
+```
+___
+
+**gridExtra** Provides a number of user-level functions to work with "grid" graphics, notably to arrange multiple grid-based plots on a page, and draw tables.
+
+```{r}
+install.packages("gridExtra")
+```
+
+```{r}
+library(gridExtra)
+```
+
+___
+
+**DataExplorer** package simplify and automate EDA process and report generation.
+
+```{r}
+install.packages("DataExplorer")
+```
+
+```{r}
+library(DataExplorer)
+```
+___
+
+**esquisse** allows you to interactively explore your data by visualizing it with the ggplot2 package. It allows you to draw bar plots, curves, scatter plots, histograms, boxplot and sf objects, then export the graph or retrieve the code to reproduce the graph.
+
+```{r}
+install.packages("esquisse")
+```
+
+```{r}
+library(esquisse)
+```
+___
+
+**plotly** is used for creating interactive web-based graphs.
+
+```{r}
+install.packages("plotly")
+```
+
+```{r}
+library(plotly)
+```
+___
+
+**knitr** is an engine for dynamic report generation with R.
+
+```{r}
+install.packages("knitr")
+```
+
+```{r}
+library(knitr)
+```
+___
+
+** To overcome the warning messages
+
+```{r}
+opts_chunk$set(warning=FALSE, message=FALSE)
+```
+
+___
+# 5. Olympics Analytics Process
+
+## 5.1 Importing Data
+
+First, we will import our data.
+
+```{r}
+dataset = read.csv("https://raw.githubusercontent.com/insaid2018/R/master/Projects/summer%20olympics.csv")
+```
+
+___
+
+## 5.2 Reading Data
+
+Lets have a complete view of our dataset.
+
+```{r}
+View(dataset)
+```
+
+___
+
+Lets have a look at the head of the data.
+
+```{r}
+head(dataset)
+```
+
+___
+
+To know how the structure of the data is, we will **str** function.
+
+```{r}
+str(dataset)
+```
+___
+
+**glimpse** gives you a better organized structure of the data. 
+
+```{r}
+glimpse(dataset)
+```
+There are 31,165 rows and 9 columns in our olympics dataset.
+___
+
+**is.na()** will find out if there is any missing values in our dataset
+
+```{r}
+sum(is.na(dataset))
+```
+From the result of is.na(), we can say that there is no missing values or null values in our dataset.
+___
+
+## 5.3 Data Profiling
+
+Lets create a data profiling report for our dataset using the **create_report** function in **DataExplorer** package.
+
+```{r}
+create_report(dataset)
+```
+___
+
+## 5.4 Analyzing the Data
+
+### 5.4.1 Find the list of differen sports played in olympics
+
+**distinct** will give the list of unique items in the variable.
+
+```{r}
+distinct(dataset,Sport)
+```
+
+There are **43** different sports played in the olympics
+
+___
+
+### 5.4.2 Find the list of differen Discipline in olympics
+
+```{r}
+distinct(dataset,Sport,Discipline)
+```
+There are **67 Discipline** for the sport played in the olympics.
+___
+
+### 5.4.3 Find the Countries participated in the olympics
+
+```{r}
+distinct(dataset,Country)
+```
+
+There are a total of **148 Countries** participated in the olympics.
+___
+
+### 5.4.4 Find the list of events in the olympics
+
+```{r}
+distinct(dataset,Event)
+```
+
+There are **666 Events** in the olympics.
+___
+
+### 5.4.5 Find the country won Gold, Silver and Bronze medal
+
+
+```{r}
+gold_country<-View(filter(select(dataset,Country,Medal),Medal=="Gold"))
+```
+List of Countries that won GOld medals is displayed.
+___
+
+```{r}
+silver_country<-View(filter(select(dataset,Country,Medal),Medal=="Silver"))
+```
+List of Countries that won Silver medals is displayed.
+___
+
+```{r}
+bronze_country<-View(filter(select(dataset,Country,Medal),Medal=="Bronze"))
+```
+List of Countries that won Bronze medals is displayed.
+___
+
+### 5.4.6 Which gender has participated more in olympics?
+
+Lets use the **ggplot** function to find it out.
+
+
+```{r}
+ggplot(dataset) +
+ aes(x = Gender, y = Year, color = Gender) +
+ geom_jitter() +
+ labs(title = "Gender wise participation of Athletes in Olympics")+
+  scale_color_manual(values=c("cyan4","deeppink4"))+
+ scale_fill_hue() +
+ theme_minimal()
+```
+___
+```{r}
+ggplot(dataset) +
+ aes(x = Gender, y = Year, fill = Gender) +
+ geom_boxplot() +
+ labs(title = "Gender wise participation of Athletes in Olympics")+
+ scale_fill_hue() +
+ theme_minimal()
+```
+It is clear from the box plot that Men has participated more in olympics compared to 
+Women.Participation of Women has gradually increased after the 1952 olympics hels at Helsinki.
+___
+
+### 5.4.7 How is the evolution of gender involved in olympics?
+```{r}
+# Table counting number of athletes by Year and Gender
+gender_count <- dataset %>% group_by(Year, Gender) %>%
+  summarize(Athletes = length(unique(Athlete)))
+gender_count$Year <- as.integer(gender_count$Year)
+
+# Plot number of Men/Women athletes vs time
+ggplot(gender_count, aes(x=Year, y=Athletes, group=Gender, color=Gender)) +
+  geom_point(size=2) +
+  geom_line()  +
+  scale_color_manual(values=c("darkviolet","orange")) +
+  labs(title = "Winning of male and female athletes over time") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+___
+
+```{r}
+View(gender_count)
+```
+___
+First summer olympics(1896) had only Men participants winning the medals in which the total count was 94.Winning of medals by women in olympics started in the year 1900 which is the second olympics held at Paris. Total number of Women participants won was 7, and the total winning count of men was 407. There was a large difference in the winning of medals by Men to that of Women.
+
+But there is a gradual increase of women winning the medals over the time. Highest number of Male athletes winning the medal was in 1920 olympics held at Antwerp.
+
+Huge rise in winning of medals by Women was in the year 1972 to 1976, in which the count raises from 183 to 328.
+___
+
+### 5.4.8 How is the Participation of countries and olympics events from 1896 to 2012?
+```{r}
+distinct(dataset,Year,City)
+```
+
+First Summer Olympics was held at 1896 at Athens, then once in four years Summer Olympics was held at different cities around the world.
+
+___
+```{r}
+counts <- dataset %>%
+  group_by(Year) %>%
+  summarize(
+    Country = length(unique(Country)),
+    Event = length(unique(Event))
+  )
+
+# plotting of Countries participated in the olympics over the years
+
+p1 <- ggplot(counts, aes(x=Year, y=Country)) +
+  geom_point(size=2) +
+  geom_line() +
+  xlim(1896,2020)+
+  scale_color_manual(values=c("darkorange")) +
+  xlab("") +
+  annotate("text", x=c(1910,1915,1934,1944),
+           y=c(25,32,37,45),
+           label=c("Stockholm 1912","Antwerp 1920","Berlin 1936","London 1948"),
+           size=3,colour = "red")+
+annotate("text", x=c(1980),
+           y=c(30),
+           label=c("Moscow 1980"),
+           size=3,colour = "Orange")
+
+# plotting of Number of events in the olympics over the years
+
+p2 <- ggplot(counts, aes(x=Year, y=Event)) +
+  geom_point(size=2) +
+  geom_line() +
+  xlim(1896,2020)+
+  scale_color_manual(values=c("darkblue"))
+grid.arrange(p1, p2, ncol=1)
+  
+```
+The first graph tells the number of countries participated in the olympics over the time.It is clear that most of the countries have not participated in the olympics during initial time. After 1920 olympics the graph tends to increase as most of the countries started participating in the olympics.
+
+The text entered in red represents that there is a missing of olympic event between them. There was no olympics held in the next four years after 1912 olympics at Stockholm because of the **World War I (1914-1918)**, so the next olympics took place in 1920 at Antwerp. Similarly there was no olympics held between 1936 to 1948 because of **World War II(1939-1945)** , so the next olympics took place in the year 1948 at London.
+
+The text mentioned in orange colour tells that there were not much countries participated in the 1980 olympics held at Moscow, so there is a fall in the count of the countries in the year 1980.
+
+The second graph tells the Count of events in which the medal was won by the atheletes in the olympics over the time. At the starting of the olympics there was only less events that was held and so the winning count of the events is less. As the year passes more number of events were included in the olympic games and winning of medal count in the events also increased.
+___
+
+### 5.4.9 Which countries won the most medals?
+```{r}
+# Selecting top 10 countries won more number of Gold,Silver and Bronze medal
+
+medal_counts <- dataset %>% filter(!is.na(Medal))%>%
+  group_by(Country,Medal) %>%
+  summarize(Count=length(Medal)) 
+
+#Sorting medal counts in descending order
+
+medal_cnt_desc <- medal_counts[order(-medal_counts$Count),]
+top_country <- head(medal_cnt_desc,49)
+
+# order Country by total medal count
+list_country_top <- top_country %>%
+  group_by(Country) %>%
+  summarize(Total=sum(Count)) %>%
+  arrange(Total) %>%
+  select(Country) 
+top_country$Country <- factor(top_country$Country, levels=list_country_top$Country)
+
+# plot
+ggplot(top_country, aes(x=Country, y=Count, fill=Medal)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values=c("#CD7F32","#FFD700","#C0C0C0")) +
+  ggtitle("Historical medal counts of top 20 countries in the olympics") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+___
+
+```{r}
+View(top_country)
+```
+
+These are the top 20 countries that has won more number of medals in the Summer Olympics over the years. **USA is top in the list with 4585 total medals** followed by **Soviet Union in the second place with total medal counts of 2049**, **third place occupied by Great Britain with total medal counts of 1720** 
+
+___
+
+### 5.4.10 What is the number of Gold, Silver and Bronze medals won by USA over the time?
+
+```{r}
+plot_gold_usa <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Gold", !grepl('-',Country), Country=='USA') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_gold_usa, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Gold medals won by USA over the time", x="Years", y="Num. of Medals")
+```
+___
+
+```{r}
+plot_silver_usa <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Silver", !grepl('-',Country), Country=='USA') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_silver_usa, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Silver medals won by USA over the time", x="Years", y="Num. of Medals")
+```
+___
+```{r}
+plot_bronze_usa <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Bronze", !grepl('-',Country), Country=='USA') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_bronze_usa, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Bronze medals won by USA over the time", x="Years", y="Num. of Medals")
+```
+___
+
+```{r}
+View(plot_gold_usa)
+```
+___
+
+Since USA leads the top rank in olympics, We will see the analysis of each medal won by USA over the years.USA won a total of **2235 Gold medals** , **1252 Silver medals** and **1098 Bronze medals** until 2012 olympics. 
+
+The highest number of gold medals was won in the year **1984 Olympics which was held at Los Angeles with 168 Gold medals**. Lowest number of gold medal count was in the year **1896 Olympics with 11 Gold medals** which was the first Summer Olympics held at Athens.
+
+More number of Silver medals was won in the **1904 olympics held at St.Louis with 137 Silver medals** and less number of Silver medals was won in the 
+**1896 olympics held at Athens with 7 Silver medals**
+
+Similary, more number of Bronze medals was won in the **1904 olympics held at St.Louis with 111 Bronze medals** and less number of Bronze medals was won in the 
+**1896 olympics held at Athens with 2 Bronze medals**
+
+___
+
+### 5.4.11 What is the number of Gold medals won by INDIA over the time?
+```{r}
+plot_gold_india <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Gold", !grepl('-',Country), Country=='IND') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_gold_india, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Gold medals won by India over the time", x="Years", y="Num. of Medals")
+```
+
+___
+
+```{r}
+View(plot_gold_india)
+```
+
+___
+
+India won a total of **128 Gold medals** until 2012 olympics.The first Gold medal was won in the year 1928 with 15 gold medals which was held at Amsterdam. **Least number of Gold medals** was won in the **2008 with only one gold medal which was held at Beijing**. **Highest number of gold medals** was won in the **1948 olympics with 20 gold medals which was held at London**.
+
+___
+
+### 5.4.12 What is the number of Silver medals won by INDIA over the time?
+```{r}
+plot_silver_india <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Silver", !grepl('-',Country), Country=='IND') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_silver_india, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Silver medals won by India over the time", x="Years", y="Num. of Medals")
+```
+___
+
+```{r}
+View(plot_silver_india)
+```
+___
+
+India won **18 Silver medals** until 2012 olympics. India won the first siver medal in 1900 olympics held at Paris. More number of silver medals was won in the year 1960 with 13 silver medals held at Rome. Least number of silver medals was recorded in the year 2004 with only one silver medal which was held at Athens.
+___
+
+### 5.4.13 What is the number of Bronze medals won by INDIA over the time?
+```{r}
+plot_bronze_india <- dataset %>% group_by(Year,Country, Medal) %>% filter(!is.na(Medal), Medal=="Bronze", !grepl('-',Country), Country=='IND') %>% summarize(Count=n()) %>% arrange(Year) %>% group_by(Year) %>% top_n(10,Count)
+ggplot(plot_bronze_india, aes(x=Year, y=Count, group=Medal)) +
+geom_line(aes(colour=Country)) +
+geom_point(aes(colour=Country))+
+scale_x_continuous(breaks=plot$Year)+
+theme(legend.position="none", legend.text=element_text(size=0),axis.text.x=element_text(size=8, angle=90,vjust=0,hjust=1))+
+labs(title="Bronze medals won by India over the time", x="Years", y="Num. of Medals")
+```
+___
+
+```{r}
+View(plot_bronze_india)
+```
+___
+
+India won **38 Bronze medals** until 2012 olympics. Highest number of Bronze medals was 15 which was won in the 1968 olympics held at Mexico. First bronze medal was recorded in 1952 olympics held at Helsinki.
+___
+
+### 5.4.14 Which Sport won most medals?
+```{r}
+p <- ggplot(dataset, aes(x = `Sport`))+
+       geom_bar(color="black", fill="indianred4")+
+  ggtitle("Sports that won most medals in olympics") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p
+
+```
+**Aquatics is the top sports** in which more number of athletes were awarded with medals.The **second most played sport is athletic** and **third place is for Rowing**.
+___
+
+### 5.4.15 Classifcation of Gold, Silver and Bronze medals with respect to sports
+```{r}
+# Selecting the countries won Gold,Silver and Bronze medal
+
+medal_counts_sport <- dataset %>% filter(!is.na(Medal))%>%
+  group_by(Sport,Medal) %>%
+  summarize(Count=length(Medal))
+
+# order Country by total medal count
+list_sport<- medal_counts_sport %>%
+  group_by(Sport) %>%
+  summarize(Total=sum(Count)) %>%
+  arrange(Total) %>%
+  select(Sport) %>%
+  top_n(48)
+medal_counts_sport$Sport <- factor(medal_counts_sport$Sport, levels=list_sport$Sport)
+
+# plot
+ggplot(medal_counts_sport, aes(x=Sport, y=Count, fill=Medal)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values=c("#CD7F32","#FFD700","#C0C0C0")) +
+  ggtitle("Distribution of medals in each sport") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+___
+```{r}
+View(medal_counts_sport)
+```
+___
+
+We will now see the distribution of medals in each sports.
+
+Aquatics is in the first place to win more medals which has total medal counts of 4170, and the second most played sports is athletics which has total medal count of 3638, third place is by Rowing which has a total of 2667 medals followed by Gymnastics, fencing, football etc.
+___
+
+### 5.4.16 Which countries won medals in Aquatics?
+```{r}
+aqua <- dataset %>% 
+  filter(Sport == "Aquatics") %>%
+  select(Athlete, Gender, Country, Year, City, Event, Medal)
+
+# Count of Events, Countries, and Aquatics competitions each year
+counts_aqua <- aqua %>% filter(Country != "Unknown") %>%
+  group_by(Year) %>%
+  summarize(
+    Events = length(unique(Event)),
+    Nations = length(unique(Country)),
+    Aquatics = length(unique(Athlete))
+  )
+
+# count number of medals awarded to each Country
+medal_counts_aqua <- aqua %>% filter(!is.na(Medal))%>%
+  group_by(Country, Medal) %>%
+  summarize(Count=length(Medal)) 
+
+#Sorting medal counts in descending order
+
+aqua_medal_cnt_desc <- medal_counts_aqua[order(-medal_counts_aqua$Count),]
+aqua_top_country <- head(aqua_medal_cnt_desc,49)
+
+#plot
+ggplot(aqua_top_country, aes(x=Country, y=Count, fill=Medal)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values=c("#CD7F32","#FFD700","#C0C0C0")) +
+  ggtitle("Historical medal counts from Aquatics Competitions") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+___
+
+```{r}
+View(aqua_medal_cnt_desc)
+```
+
+There is an increase in the participation of countries in Aquatics starting from the beginning of the olympics. Even the Number of events under Aquatics has increased over the time.
+
+Since Aquatics is the sports in which more number of medals were awarded, we have come up with the graph to tell which countries won more number of medals in the Aquatics sports.**USA Ranks first with a total of 1184 medals, Australia is in second place with 400 medals and third place is occupied by Hungary with total of 250 medals**.
+___
+
+# 6. Strategy
+
+We have come with a strategy for the countries to achieve top position among other countries in the olympics.
+ 
+  **There is a possibility to win more number of medals in the Aquatics. So, athletes   can be encouraged to practice more efficiently in the aquatics event**.
+  
+  **Apart from Aquatics, nations can give importance to other sports like Athletics, Rowing, Football, Hockey because these sports are played as a team and if the team wins more number of medals will be awarded to that country.**
+  
+  **Athletes from USA and China won more medals during the olympics held in their own country. So, there is high chances for the athletes to win more medals if the olympics takes place in their country.**
+  
+___
+
+  
